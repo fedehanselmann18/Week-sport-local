@@ -1,5 +1,4 @@
 from datetime import timedelta
-import secrets
 import uuid
 from typing import Optional
 
@@ -10,7 +9,6 @@ from sqlalchemy.orm import Session
 from app.db import models
 from app.db.db import get_db
 from app.oAuth2 import get_current_user
-from app.schemas.share import ShareWeekResponse, ShareWeekStatusResponse
 from app.schemas.week import CopyWeek, CreateWeek, UpdateWeek, WeekResponse
 from app.schemas.week_summary import WeekSummaryResponse
 
@@ -257,57 +255,6 @@ def copy_week(team_id: uuid.UUID, week_id: uuid.UUID, copy_data: Optional[CopyWe
     db.commit()
     db.refresh(new_week)
     return new_week
-
-
-@router.post("/{week_id}/share", response_model=ShareWeekResponse, status_code=status.HTTP_200_OK)
-def create_share(team_id: uuid.UUID, week_id: uuid.UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    _validate_owned_team_or_404(db, team_id, current_user.id)
-
-    week = db.query(models.TrainingWeek).filter(
-        models.TrainingWeek.id == week_id,
-        models.TrainingWeek.team_id == team_id,
-    ).first()
-    if week is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Week not found")
-
-    if not week.public_token:
-        week.public_token = secrets.token_urlsafe(16)
-        db.commit()
-        db.refresh(week)
-
-    return {"url": f"/public/week/{week.public_token}", "token": week.public_token}
-
-
-@router.get("/{week_id}/share", response_model=ShareWeekStatusResponse, status_code=status.HTTP_200_OK)
-def get_share_status(team_id: uuid.UUID, week_id: uuid.UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    _validate_owned_team_or_404(db, team_id, current_user.id)
-
-    week = db.query(models.TrainingWeek).filter(
-        models.TrainingWeek.id == week_id,
-        models.TrainingWeek.team_id == team_id,
-    ).first()
-    if week is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Week not found")
-
-    if not week.public_token:
-        return {"active": False, "url": None, "token": None}
-
-    return {"active": True, "url": f"/public/week/{week.public_token}", "token": week.public_token}
-
-
-@router.delete("/{week_id}/share", status_code=status.HTTP_204_NO_CONTENT)
-def disable_share(team_id: uuid.UUID, week_id: uuid.UUID, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    _validate_owned_team_or_404(db, team_id, current_user.id)
-
-    week = db.query(models.TrainingWeek).filter(
-        models.TrainingWeek.id == week_id,
-        models.TrainingWeek.team_id == team_id,
-    ).first()
-    if week is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Week not found")
-
-    week.public_token = None
-    db.commit()
 
 
 @router.get("/{week_id}/summary", response_model=WeekSummaryResponse, status_code=status.HTTP_200_OK)

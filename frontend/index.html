@@ -1,0 +1,1294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WeekSport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0f13;
+      --panel: #141922;
+      --panel-soft: #1a2230;
+      --line: #2a3445;
+      --text: #f5f8fc;
+      --muted: #96a3b8;
+      --accent: #44d18f;
+      --danger: #ff5c73;
+      --warn: #ffbb55;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 0% 0%, #122136 0%, transparent 55%),
+        radial-gradient(700px 500px at 100% 100%, #1b1f2a 0%, transparent 60%),
+        var(--bg);
+    }
+
+    .shell {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .brand span { color: var(--accent); }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn.primary {
+      background: linear-gradient(180deg, #48dd98 0%, #2fb070 100%);
+      border-color: #4ee7a0;
+      color: #092015;
+    }
+
+    .btn.ghost { background: transparent; }
+    .btn.danger {
+      border-color: #5f2a35;
+      background: #2a151b;
+      color: #ffb5c0;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(33,43,60,0.5), rgba(20,25,34,0.85));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .muted { color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .team-card {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      border: 1px solid var(--line);
+      background: #0f141d;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      width: 100%;
+    }
+
+    .field textarea { min-height: 86px; resize: vertical; }
+
+    .inline-error {
+      color: #ff9ead;
+      font-size: 0.88rem;
+      min-height: 1.2em;
+      margin-top: 6px;
+    }
+
+    .status {
+      min-height: 1.2em;
+      color: var(--warn);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .hidden { display: none !important; }
+
+    .day-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #111722;
+    }
+
+    .activity {
+      border-top: 1px dashed #2a364a;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid #35513f;
+      color: #9be8c1;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 0.75rem;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 12, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 99;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      width: min(560px, 100%);
+      background: #111723;
+      border: 1px solid #2a3447;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal h3 { margin-top: 0; margin-bottom: 12px; }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .split.single {
+      grid-template-columns: 1fr;
+    }
+
+    @media (max-width: 820px) {
+      .form-grid, .split { grid-template-columns: 1fr; }
+      .shell { padding: 14px; }
+      .btn { padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">Week<span>Sport</span></div>
+      <div class="actions">
+        <button id="backBtn" class="btn ghost hidden">Back</button>
+        <button id="logoutBtn" class="btn hidden">Logout</button>
+      </div>
+    </div>
+
+    <div id="globalStatus" class="status"></div>
+
+    <section id="view-login" class="view active">
+      <div class="panel" style="max-width:560px;margin:auto;">
+        <h2 style="margin-top:0;">Sign in</h2>
+        <p class="muted">Use your WeekSport account to access your teams.</p>
+        <form id="loginForm" class="stack">
+          <div class="field">
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" type="email" required />
+          </div>
+          <div class="field">
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" type="password" required />
+          </div>
+          <div class="row">
+            <button type="submit" class="btn primary">Login</button>
+            <button id="openSignupBtn" type="button" class="btn">Create Account</button>
+          </div>
+          <div id="loginError" class="inline-error"></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="view-dashboard" class="view">
+      <div class="panel">
+        <div class="section-title">
+          <span>Dashboard</span>
+          <div class="row">
+            <button id="profileBtn" class="btn">Profile</button>
+            <button id="createTeamBtn" class="btn primary">Create Team</button>
+          </div>
+        </div>
+        <div id="dashboardMeta" class="muted"></div>
+        <div id="dashboardError" class="inline-error"></div>
+      </div>
+      <div id="teamsGrid" class="grid"></div>
+    </section>
+
+    <section id="view-team" class="view">
+      <div class="panel">
+        <div class="section-title">
+          <span id="teamTitle">Team</span>
+          <div class="row">
+            <button id="togglePlayersBtn" class="btn">Ver Players</button>
+            <button id="teamEditBtn" class="btn">Edit Team</button>
+            <button id="teamDeleteBtn" class="btn danger">Delete Team</button>
+          </div>
+        </div>
+        <div id="teamMeta" class="muted"></div>
+        <div id="teamError" class="inline-error"></div>
+      </div>
+
+      <div id="teamSplit" class="split single">
+        <div id="playersPanel" class="panel hidden">
+          <div class="section-title">
+            <span>Players</span>
+            <button id="createPlayerBtn" class="btn primary">Add Player</button>
+          </div>
+          <div id="playersList" class="stack"></div>
+          <div id="playersError" class="inline-error"></div>
+        </div>
+
+        <div id="weeksPanel" class="panel">
+          <div class="section-title">
+            <span>Training Weeks</span>
+            <button id="createWeekBtn" class="btn primary">Add Week</button>
+          </div>
+          <div id="weeksList" class="stack"></div>
+          <div id="weeksError" class="inline-error"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <span>Matches</span>
+          <button id="createMatchBtn" class="btn primary">Add Match</button>
+        </div>
+        <div id="matchesList" class="stack"></div>
+        <div id="matchesError" class="inline-error"></div>
+      </div>
+    </section>
+
+    <section id="view-week" class="view">
+      <div class="panel">
+        <div class="section-title">
+          <span id="weekTitle">Week</span>
+          <div class="row">
+            <button id="weekEditBtn" class="btn">Edit Week</button>
+            <button id="copyWeekBtn" class="btn">Copy Week</button>
+            <button id="weekDeleteBtn" class="btn danger">Delete Week</button>
+          </div>
+        </div>
+        <div id="weekMeta" class="muted"></div>
+        <div id="weekError" class="inline-error"></div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <span>Days and Activities</span>
+          <button id="createDayBtn" class="btn primary">Add Day</button>
+        </div>
+        <div id="daysGrid" class="grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+      <h3 id="modalTitle"></h3>
+      <form id="modalForm" class="stack"></form>
+      <div id="modalError" class="inline-error"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:8px;">
+        <button id="modalCancelBtn" type="button" class="btn">Cancel</button>
+        <button id="modalSubmitBtn" type="button" class="btn primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+    const TOKEN_KEY = "weeksport_token";
+
+    const state = {
+      token: localStorage.getItem(TOKEN_KEY) || "",
+      user: null,
+      teams: [],
+      currentTeam: null,
+      playersOpen: false,
+      currentWeek: null,
+      currentWeekSummary: null,
+      currentDays: [],
+      loadingCount: 0,
+      history: []
+    };
+
+    const dayOrder = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
+
+    const el = {
+      globalStatus: document.getElementById("globalStatus"),
+      backBtn: document.getElementById("backBtn"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      loginForm: document.getElementById("loginForm"),
+      loginEmail: document.getElementById("loginEmail"),
+      loginPassword: document.getElementById("loginPassword"),
+      loginError: document.getElementById("loginError"),
+      openSignupBtn: document.getElementById("openSignupBtn"),
+      dashboardMeta: document.getElementById("dashboardMeta"),
+      dashboardError: document.getElementById("dashboardError"),
+      teamsGrid: document.getElementById("teamsGrid"),
+      profileBtn: document.getElementById("profileBtn"),
+      createTeamBtn: document.getElementById("createTeamBtn"),
+      teamTitle: document.getElementById("teamTitle"),
+      teamMeta: document.getElementById("teamMeta"),
+      teamError: document.getElementById("teamError"),
+      teamSplit: document.getElementById("teamSplit"),
+      playersPanel: document.getElementById("playersPanel"),
+      weeksPanel: document.getElementById("weeksPanel"),
+      togglePlayersBtn: document.getElementById("togglePlayersBtn"),
+      playersList: document.getElementById("playersList"),
+      playersError: document.getElementById("playersError"),
+      weeksList: document.getElementById("weeksList"),
+      weeksError: document.getElementById("weeksError"),
+      matchesList: document.getElementById("matchesList"),
+      matchesError: document.getElementById("matchesError"),
+      teamEditBtn: document.getElementById("teamEditBtn"),
+      teamDeleteBtn: document.getElementById("teamDeleteBtn"),
+      createPlayerBtn: document.getElementById("createPlayerBtn"),
+      createWeekBtn: document.getElementById("createWeekBtn"),
+      createMatchBtn: document.getElementById("createMatchBtn"),
+      weekTitle: document.getElementById("weekTitle"),
+      weekMeta: document.getElementById("weekMeta"),
+      weekError: document.getElementById("weekError"),
+      daysGrid: document.getElementById("daysGrid"),
+      weekEditBtn: document.getElementById("weekEditBtn"),
+      copyWeekBtn: document.getElementById("copyWeekBtn"),
+      weekDeleteBtn: document.getElementById("weekDeleteBtn"),
+      createDayBtn: document.getElementById("createDayBtn"),
+      modalOverlay: document.getElementById("modalOverlay"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalForm: document.getElementById("modalForm"),
+      modalError: document.getElementById("modalError"),
+      modalSubmitBtn: document.getElementById("modalSubmitBtn"),
+      modalCancelBtn: document.getElementById("modalCancelBtn")
+    };
+
+    function setLoading(isLoading) {
+      state.loadingCount += isLoading ? 1 : -1;
+      if (state.loadingCount < 0) state.loadingCount = 0;
+      el.globalStatus.textContent = state.loadingCount > 0 ? "Loading..." : "";
+    }
+
+    function clearErrors() {
+      [
+        el.loginError, el.dashboardError, el.teamError, el.playersError,
+        el.weeksError, el.matchesError, el.weekError, el.modalError
+      ].forEach((node) => { node.textContent = ""; });
+    }
+
+    function getErrorMessage(error) {
+      if (error && error.data && typeof error.data.detail === "string") return error.data.detail;
+      if (error && error.message) return error.message;
+      return "Unexpected error";
+    }
+
+    async function api(path, options = {}) {
+      const method = options.method || "GET";
+      const headers = options.headers ? { ...options.headers } : {};
+      const body = options.body;
+      const isFormData = body instanceof FormData;
+
+      if (state.token) headers.Authorization = "Bearer " + state.token;
+      if (!isFormData && body !== undefined && !headers["Content-Type"]) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      setLoading(true);
+      try {
+        const response = await fetch(API_BASE + path, {
+          method,
+          headers,
+          body: isFormData ? body : (body !== undefined ? JSON.stringify(body) : undefined)
+        });
+
+        if (response.status === 204) return null;
+
+        let data = null;
+        try {
+          data = await response.json();
+        } catch (jsonErr) {
+          data = null;
+        }
+
+        if (!response.ok) {
+          const err = new Error(data && data.detail ? data.detail : "Request failed");
+          err.status = response.status;
+          err.data = data || {};
+          if (response.status === 401 || response.status === 403) {
+            handleLogout();
+          }
+          throw err;
+        }
+
+        return data;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function showView(name, pushHistory = true) {
+      document.querySelectorAll(".view").forEach((section) => section.classList.remove("active"));
+      const target = document.getElementById("view-" + name);
+      target.classList.add("active");
+
+      if (pushHistory) {
+        if (state.history[state.history.length - 1] !== name) {
+          state.history.push(name);
+        }
+      }
+
+      el.backBtn.classList.toggle("hidden", state.history.length <= 1 || name === "login");
+      el.logoutBtn.classList.toggle("hidden", name === "login");
+    }
+
+    function goBack() {
+      if (state.history.length <= 1) return;
+      state.history.pop();
+      const previous = state.history[state.history.length - 1];
+      showView(previous, false);
+      if (previous === "dashboard") loadDashboard();
+      if (previous === "team" && state.currentTeam) loadTeamView(state.currentTeam.id, false);
+      if (previous === "week" && state.currentTeam && state.currentWeek) loadWeekView(state.currentTeam.id, state.currentWeek.id, false);
+    }
+
+    function handleLogout() {
+      localStorage.removeItem(TOKEN_KEY);
+      state.token = "";
+      state.user = null;
+      state.teams = [];
+      state.currentTeam = null;
+      state.currentWeek = null;
+      state.currentWeekSummary = null;
+      state.currentDays = [];
+      state.history = ["login"];
+      clearErrors();
+      showView("login", false);
+    }
+
+    function prettyDate(value) {
+      if (!value) return "-";
+      return new Date(value + "T00:00:00").toLocaleDateString();
+    }
+
+    function toIsoDate(dateObj) {
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const day = String(dateObj.getDate()).padStart(2, "0");
+      return year + "-" + month + "-" + day;
+    }
+
+    function getWeekBoundsFromAnyDate(isoDate) {
+      const date = new Date(isoDate + "T00:00:00");
+      const weekDay = date.getDay();
+      const offsetToMonday = weekDay === 0 ? -6 : 1 - weekDay;
+
+      const monday = new Date(date);
+      monday.setDate(date.getDate() + offsetToMonday);
+
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      return {
+        fecha_inicio: toIsoDate(monday),
+        fecha_fin: toIsoDate(sunday)
+      };
+    }
+
+    function openModal(config) {
+      el.modalTitle.textContent = config.title;
+      el.modalForm.innerHTML = "";
+      el.modalError.textContent = "";
+      el.modalSubmitBtn.textContent = config.submitText || "Save";
+
+      const fields = config.fields || [];
+      fields.forEach((f) => {
+        const wrap = document.createElement("div");
+        wrap.className = "field";
+
+        const label = document.createElement("label");
+        label.textContent = f.label;
+        label.htmlFor = "modal_" + f.name;
+
+        let input;
+        if (f.type === "textarea") {
+          input = document.createElement("textarea");
+        } else if (f.type === "select") {
+          input = document.createElement("select");
+          (f.options || []).forEach((opt) => {
+            const option = document.createElement("option");
+            option.value = opt.value;
+            option.textContent = opt.label;
+            input.appendChild(option);
+          });
+        } else {
+          input = document.createElement("input");
+          input.type = f.type || "text";
+        }
+
+        input.id = "modal_" + f.name;
+        input.name = f.name;
+        if (f.placeholder) input.placeholder = f.placeholder;
+        if (f.required) input.required = true;
+        if (f.min !== undefined) input.min = f.min;
+        if (f.max !== undefined) input.max = f.max;
+        if (f.step !== undefined) input.step = f.step;
+        if (f.value !== undefined && f.value !== null) input.value = f.value;
+
+        wrap.appendChild(label);
+        wrap.appendChild(input);
+        el.modalForm.appendChild(wrap);
+      });
+
+      const onSubmit = async () => {
+        try {
+          const data = {};
+          fields.forEach((f) => {
+            const node = document.getElementById("modal_" + f.name);
+            if (f.type === "file") {
+              data[f.name] = node.files[0] || null;
+            } else if (f.type === "number") {
+              data[f.name] = node.value === "" ? null : Number(node.value);
+            } else {
+              data[f.name] = node.value;
+            }
+            if (f.trim && typeof data[f.name] === "string") data[f.name] = data[f.name].trim();
+            if (f.optionalEmptyToNull && data[f.name] === "") data[f.name] = null;
+          });
+
+          el.modalSubmitBtn.disabled = true;
+          await config.onSubmit(data);
+          closeModal();
+        } catch (error) {
+          el.modalError.textContent = getErrorMessage(error);
+        } finally {
+          el.modalSubmitBtn.disabled = false;
+        }
+      };
+
+      el.modalSubmitBtn.onclick = onSubmit;
+      el.modalCancelBtn.onclick = closeModal;
+      el.modalOverlay.classList.add("show");
+    }
+
+    function closeModal() {
+      el.modalOverlay.classList.remove("show");
+      el.modalForm.innerHTML = "";
+      el.modalError.textContent = "";
+    }
+
+    async function login(email, password) {
+      const payload = new URLSearchParams();
+      payload.append("username", email);
+      payload.append("password", password);
+
+      setLoading(true);
+      try {
+        const response = await fetch(API_BASE + "/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: payload.toString()
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || "Invalid credentials");
+        }
+
+        state.token = data.access_token;
+        localStorage.setItem(TOKEN_KEY, state.token);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function loadDashboard() {
+      clearErrors();
+      try {
+        state.user = await api("/user/me");
+        state.teams = await api("/teams/");
+        el.dashboardMeta.textContent = "Signed in as " + state.user.username + " (" + state.user.email + ")";
+
+        el.teamsGrid.innerHTML = "";
+        if (!state.teams.length) {
+          const empty = document.createElement("div");
+          empty.className = "card muted";
+          empty.textContent = "No teams yet. Create your first team.";
+          el.teamsGrid.appendChild(empty);
+        }
+
+        state.teams.forEach((team) => {
+          const card = document.createElement("div");
+          card.className = "card team-card";
+          card.onclick = () => loadTeamView(team.id, true);
+
+          card.innerHTML =
+            "<h3>" + team.nombre + "</h3>" +
+            "<div class='muted'>" + team.deporte + "</div>" +
+            "<div class='row' style='margin-top:10px;'>" +
+              "<button class='btn'>Open</button>" +
+              "<button class='btn danger' data-delete='1'>Delete</button>" +
+            "</div>";
+
+          card.querySelector("[data-delete='1']").onclick = async (ev) => {
+            ev.stopPropagation();
+            if (!confirm("Delete team " + team.nombre + "?")) return;
+            await api("/teams/" + team.id, { method: "DELETE" });
+            await loadDashboard();
+          };
+
+          el.teamsGrid.appendChild(card);
+        });
+      } catch (error) {
+        el.dashboardError.textContent = getErrorMessage(error);
+      }
+    }
+
+    async function loadTeamView(teamId, pushHistory = true) {
+      clearErrors();
+      showView("team", pushHistory);
+      try {
+        state.currentTeam = await api("/teams/" + teamId);
+        const [players, weeks, matches] = await Promise.all([
+          api("/teams/" + teamId + "/players/"),
+          api("/teams/" + teamId + "/weeks/"),
+          api("/teams/" + teamId + "/matches/")
+        ]);
+
+        el.teamTitle.textContent = state.currentTeam.nombre;
+        el.teamMeta.textContent = "Sport: " + state.currentTeam.deporte + " | Created: " + new Date(state.currentTeam.created_at).toLocaleString();
+
+        renderPlayers(players);
+        renderWeeks(weeks);
+        renderMatches(matches);
+        setPlayersOpen(false);
+      } catch (error) {
+        el.teamError.textContent = getErrorMessage(error);
+      }
+    }
+
+    function setPlayersOpen(open) {
+      state.playersOpen = open;
+      el.playersPanel.classList.toggle("hidden", !open);
+      el.weeksPanel.classList.toggle("hidden", open);
+      el.teamSplit.classList.add("single");
+      el.togglePlayersBtn.textContent = open ? "Ocultar Players" : "Ver Players";
+    }
+
+    function renderPlayers(players) {
+      el.playersList.innerHTML = "";
+      if (!players.length) {
+        el.playersList.innerHTML = "<div class='muted'>No players.</div>";
+        return;
+      }
+
+      players.forEach((p) => {
+        const item = document.createElement("div");
+        item.className = "card";
+        item.innerHTML =
+          "<h3>" + p.nombre + " " + p.apellido + "</h3>" +
+          "<div class='muted'>" + (p.posicion || "No position") + " | #" + (p.dorsal ?? "-") + "</div>" +
+          "<div class='muted' style='margin-top:4px;'>" + (p.notas || "No notes") + "</div>" +
+          "<div class='row' style='margin-top:8px;'>" +
+            "<button class='btn' data-edit='1'>Edit</button>" +
+            "<button class='btn danger' data-del='1'>Delete</button>" +
+          "</div>";
+
+        item.querySelector("[data-edit='1']").onclick = async () => {
+          const full = await api("/teams/" + state.currentTeam.id + "/players/" + p.id);
+          openPlayerModal(full);
+        };
+        item.querySelector("[data-del='1']").onclick = async () => {
+          if (!confirm("Delete player " + p.nombre + " " + p.apellido + "?")) return;
+          await api("/teams/" + state.currentTeam.id + "/players/" + p.id, { method: "DELETE" });
+          await loadTeamView(state.currentTeam.id, false);
+        };
+
+        el.playersList.appendChild(item);
+      });
+    }
+
+    function renderWeeks(weeks) {
+      el.weeksList.innerHTML = "";
+      if (!weeks.length) {
+        el.weeksList.innerHTML = "<div class='muted'>No training weeks.</div>";
+        return;
+      }
+
+      weeks.sort((a, b) => (a.fecha_inicio > b.fecha_inicio ? 1 : -1));
+      weeks.forEach((w) => {
+        const item = document.createElement("div");
+        item.className = "card";
+        item.innerHTML =
+          "<h3>" + prettyDate(w.fecha_inicio) + " - " + prettyDate(w.fecha_fin) + "</h3>" +
+          "<div class='muted'>" + (w.notas || "No notes") + "</div>" +
+          "<div class='row' style='margin-top:8px;'>" +
+            "<button class='btn' data-open='1'>Open</button>" +
+            "<button class='btn' data-edit='1'>Edit</button>" +
+            "<button class='btn danger' data-del='1'>Delete</button>" +
+          "</div>";
+
+        item.querySelector("[data-open='1']").onclick = () => loadWeekView(state.currentTeam.id, w.id, true);
+        item.querySelector("[data-edit='1']").onclick = async () => {
+          const full = await api("/teams/" + state.currentTeam.id + "/weeks/" + w.id);
+          openWeekModal(full);
+        };
+        item.querySelector("[data-del='1']").onclick = async () => {
+          if (!confirm("Delete this week?")) return;
+          await api("/teams/" + state.currentTeam.id + "/weeks/" + w.id, { method: "DELETE" });
+          await loadTeamView(state.currentTeam.id, false);
+        };
+
+        el.weeksList.appendChild(item);
+      });
+    }
+
+    function renderMatches(matches) {
+      el.matchesList.innerHTML = "";
+      if (!matches.length) {
+        el.matchesList.innerHTML = "<div class='muted'>No matches.</div>";
+        return;
+      }
+
+      matches.forEach((m) => {
+        const item = document.createElement("div");
+        item.className = "card";
+        item.innerHTML =
+          "<h3>vs " + m.rival + "</h3>" +
+          "<div class='muted'>Date: " + prettyDate(m.fecha) + " | Result: " + (m.resultado || "-") + "</div>" +
+          "<div class='muted' style='margin-top:4px;'>" + (m.notas || "No notes") + "</div>" +
+          "<div class='row' style='margin-top:8px;'>" +
+            "<button class='btn' data-edit='1'>Edit</button>" +
+            "<button class='btn danger' data-del='1'>Delete</button>" +
+          "</div>";
+
+        item.querySelector("[data-edit='1']").onclick = async () => {
+          const full = await api("/teams/" + state.currentTeam.id + "/matches/" + m.id);
+          openMatchModal(full);
+        };
+        item.querySelector("[data-del='1']").onclick = async () => {
+          if (!confirm("Delete this match?")) return;
+          await api("/teams/" + state.currentTeam.id + "/matches/" + m.id, { method: "DELETE" });
+          await loadTeamView(state.currentTeam.id, false);
+        };
+
+        el.matchesList.appendChild(item);
+      });
+    }
+
+    async function loadWeekView(teamId, weekId, pushHistory = true) {
+      clearErrors();
+      showView("week", pushHistory);
+      try {
+        state.currentWeek = await api("/teams/" + teamId + "/weeks/" + weekId);
+
+        const [summary, days] = await Promise.all([
+          api("/teams/" + teamId + "/weeks/" + weekId + "/summary"),
+          api("/weeks/" + weekId + "/days/")
+        ]);
+
+        const activitiesByDayEntries = await Promise.all(
+          days.map(async (day) => {
+            const activities = await api("/days/" + day.id + "/activities/");
+            return [day.id, activities];
+          })
+        );
+        const activitiesByDay = Object.fromEntries(activitiesByDayEntries);
+        const mergedSummaryDays = (summary.days || []).map((day) => ({
+          ...day,
+          activities: activitiesByDay[day.id] || day.activities || []
+        }));
+
+        state.currentWeekSummary = summary;
+        state.currentDays = days;
+
+        el.weekTitle.textContent = "Week " + prettyDate(state.currentWeek.fecha_inicio) + " - " + prettyDate(state.currentWeek.fecha_fin);
+        el.weekMeta.textContent = state.currentWeek.notas || "No notes";
+
+        renderDays(mergedSummaryDays, days);
+      } catch (error) {
+        el.weekError.textContent = getErrorMessage(error);
+      }
+    }
+
+    function renderDays(summaryDays, dayEntities) {
+      const mapDays = {};
+      dayEntities.forEach((d) => { mapDays[d.id] = d; });
+
+      const ordered = [...summaryDays].sort((a, b) => dayOrder.indexOf(a.dia) - dayOrder.indexOf(b.dia));
+      el.daysGrid.innerHTML = "";
+
+      ordered.forEach((d) => {
+        const dayRow = mapDays[d.id] || d;
+        const card = document.createElement("div");
+        card.className = "day-card";
+
+        const activitiesHtml = d.activities.length
+          ? d.activities.map((a) => {
+              return "<div class='activity'>" +
+                "<div><strong>" + (a.horario || "--:--") + "</strong> @ " + (a.lugar || "No location") + "</div>" +
+                "<div class='muted'>" + (a.descripcion || "No description") + "</div>" +
+                "<div class='row' style='margin-top:6px;'>" +
+                  "<button class='btn' data-aedit='" + a.id + "'>Edit</button>" +
+                  "<button class='btn danger' data-adel='" + a.id + "'>Delete</button>" +
+                "</div>" +
+              "</div>";
+            }).join("")
+          : "<div class='muted' style='margin-top:8px;'>No activities</div>";
+
+        card.innerHTML =
+          "<h3 style='margin-top:0;'>" + d.dia + "</h3>" +
+          "<div class='muted'>Date: " + prettyDate(d.fecha) + "</div>" +
+          "<div class='row' style='margin-top:8px;'>" +
+            "<button class='btn' data-add='1'>Add Activity</button>" +
+            "<button class='btn' data-restday='1'>Mark Rest Day</button>" +
+            "<button class='btn' data-editday='1'>Edit Day</button>" +
+            "<button class='btn danger' data-delday='1'>Delete Day</button>" +
+          "</div>" +
+          activitiesHtml;
+
+        card.querySelector("[data-add='1']").onclick = () => openActivityModal(dayRow.id, null);
+        card.querySelector("[data-restday='1']").onclick = async () => {
+          await markDayAsRest(dayRow.id, d);
+        };
+        card.querySelector("[data-editday='1']").onclick = async () => {
+          const fullDay = await api("/weeks/" + state.currentWeek.id + "/days/" + dayRow.id);
+          openDayModal(fullDay);
+        };
+        card.querySelector("[data-delday='1']").onclick = async () => {
+          if (!confirm("Delete day " + d.dia + "?")) return;
+          await api("/weeks/" + state.currentWeek.id + "/days/" + dayRow.id, { method: "DELETE" });
+          await loadWeekView(state.currentTeam.id, state.currentWeek.id, false);
+        };
+
+        card.querySelectorAll("[data-aedit]").forEach((btn) => {
+          btn.onclick = async () => {
+            const activityId = btn.getAttribute("data-aedit");
+            const full = await api("/days/" + dayRow.id + "/activities/" + activityId);
+            openActivityModal(dayRow.id, full);
+          };
+        });
+        card.querySelectorAll("[data-adel]").forEach((btn) => {
+          btn.onclick = async () => {
+            const activityId = btn.getAttribute("data-adel");
+            if (!confirm("Delete activity?")) return;
+            await api("/days/" + dayRow.id + "/activities/" + activityId, { method: "DELETE" });
+            await loadWeekView(state.currentTeam.id, state.currentWeek.id, false);
+          };
+        });
+
+        el.daysGrid.appendChild(card);
+      });
+    }
+
+    async function markDayAsRest(dayId, daySummary) {
+      if (!confirm("Set " + daySummary.dia + " as rest day? Existing activities will be replaced.")) return;
+
+      const existingActivities = Array.isArray(daySummary.activities) ? daySummary.activities : [];
+      for (const activity of existingActivities) {
+        await api("/days/" + dayId + "/activities/" + activity.id, { method: "DELETE" });
+      }
+
+      await api("/days/" + dayId + "/activities/", {
+        method: "POST",
+        body: {
+          horario: "Todo el dia",
+          lugar: "Descanso",
+          descripcion: "Descanso"
+        }
+      });
+
+      await loadWeekView(state.currentTeam.id, state.currentWeek.id, false);
+    }
+
+    function openSignupModal() {
+      openModal({
+        title: "Create Account",
+        submitText: "Create",
+        fields: [
+          { name: "email", label: "Email", type: "email", required: true, trim: true },
+          { name: "username", label: "Username", type: "text", required: true, trim: true },
+          { name: "password", label: "Password", type: "password", required: true }
+        ],
+        onSubmit: async (data) => {
+          await api("/user/", { method: "POST", body: data, headers: {} });
+        }
+      });
+    }
+
+    function openProfileModal() {
+      openModal({
+        title: "Profile",
+        submitText: "Update Username",
+        fields: [
+          { name: "username", label: "Username", type: "text", required: true, value: state.user.username, trim: true }
+        ],
+        onSubmit: async (data) => {
+          await api("/user/me", { method: "PUT", body: { username: data.username } });
+          await loadDashboard();
+        }
+      });
+    }
+
+    function openTeamModal(team) {
+      const editing = Boolean(team);
+      openModal({
+        title: editing ? "Edit Team" : "Create Team",
+        submitText: editing ? "Update" : "Create",
+        fields: [
+          { name: "nombre", label: "Name", type: "text", required: true, value: team ? team.nombre : "", trim: true },
+          { name: "deporte", label: "Sport", type: "text", required: true, value: team ? team.deporte : "", trim: true }
+        ],
+        onSubmit: async (data) => {
+          if (editing) {
+            await api("/teams/" + team.id, { method: "PUT", body: data });
+            await loadTeamView(team.id, false);
+          } else {
+            await api("/teams/", { method: "POST", body: data });
+            await loadDashboard();
+          }
+        }
+      });
+    }
+
+    function openPlayerModal(player) {
+      const editing = Boolean(player);
+      openModal({
+        title: editing ? "Edit Player" : "Add Player",
+        submitText: editing ? "Update" : "Create",
+        fields: [
+          { name: "nombre", label: "First Name", type: "text", required: true, value: player ? player.nombre : "", trim: true },
+          { name: "apellido", label: "Last Name", type: "text", required: true, value: player ? player.apellido : "", trim: true },
+          { name: "posicion", label: "Position", type: "text", value: player ? (player.posicion || "") : "", optionalEmptyToNull: true, trim: true },
+          { name: "dorsal", label: "Jersey Number", type: "number", value: player ? (player.dorsal ?? "") : "", optionalEmptyToNull: true },
+          { name: "notas", label: "Notes", type: "textarea", value: player ? (player.notas || "") : "", optionalEmptyToNull: true, trim: true }
+        ],
+        onSubmit: async (data) => {
+          const payload = {
+            nombre: data.nombre,
+            apellido: data.apellido,
+            posicion: data.posicion,
+            dorsal: data.dorsal,
+            notas: data.notas
+          };
+          if (editing) {
+            await api("/teams/" + state.currentTeam.id + "/players/" + player.id, { method: "PUT", body: payload });
+          } else {
+            await api("/teams/" + state.currentTeam.id + "/players/", { method: "POST", body: payload });
+          }
+          await loadTeamView(state.currentTeam.id, false);
+        }
+      });
+    }
+
+    function openWeekModal(week) {
+      const editing = Boolean(week);
+      openModal({
+        title: editing ? "Edit Week" : "Create Week",
+        submitText: editing ? "Update" : "Create",
+        fields: [
+          { name: "fecha_referencia", label: "Pick any day in the week", type: "date", required: true, value: week ? week.fecha_inicio : "" },
+          { name: "notas", label: "Notes", type: "textarea", value: week ? (week.notas || "") : "", optionalEmptyToNull: true, trim: true }
+        ],
+        onSubmit: async (data) => {
+          const bounds = getWeekBoundsFromAnyDate(data.fecha_referencia);
+          const payload = {
+            fecha_inicio: bounds.fecha_inicio,
+            fecha_fin: bounds.fecha_fin,
+            notas: data.notas
+          };
+          if (editing) {
+            await api("/teams/" + state.currentTeam.id + "/weeks/" + week.id, { method: "PUT", body: payload });
+            await loadWeekView(state.currentTeam.id, week.id, false);
+          } else {
+            await api("/teams/" + state.currentTeam.id + "/weeks/", { method: "POST", body: payload });
+            await loadTeamView(state.currentTeam.id, false);
+          }
+        }
+      });
+    }
+
+    function openCopyWeekModal() {
+      openModal({
+        title: "Copy Week",
+        submitText: "Copy",
+        fields: [
+          { name: "fecha_referencia", label: "Pick any day for the new week (optional)", type: "date", value: "" },
+          { name: "notas", label: "Notes override", type: "textarea", value: "", optionalEmptyToNull: true, trim: true }
+        ],
+        onSubmit: async (data) => {
+          const payload = {};
+          if (data.fecha_referencia) {
+            const bounds = getWeekBoundsFromAnyDate(data.fecha_referencia);
+            payload.fecha_inicio = bounds.fecha_inicio;
+            payload.fecha_fin = bounds.fecha_fin;
+          }
+          if (data.notas !== null) payload.notas = data.notas;
+          await api("/teams/" + state.currentTeam.id + "/weeks/" + state.currentWeek.id + "/copy", {
+            method: "POST",
+            body: payload
+          });
+          await loadTeamView(state.currentTeam.id, false);
+          showView("team", false);
+        }
+      });
+    }
+
+    function openMatchModal(match) {
+      const editing = Boolean(match);
+      openModal({
+        title: editing ? "Edit Match" : "Add Match",
+        submitText: editing ? "Update" : "Create",
+        fields: [
+          { name: "rival", label: "Opponent", type: "text", required: true, value: match ? match.rival : "", trim: true },
+          { name: "fecha", label: "Date", type: "date", required: true, value: match ? match.fecha : "" },
+          { name: "resultado", label: "Result", type: "text", value: match ? (match.resultado || "") : "", optionalEmptyToNull: true, trim: true },
+          { name: "notas", label: "Notes", type: "textarea", value: match ? (match.notas || "") : "", optionalEmptyToNull: true, trim: true }
+        ],
+        onSubmit: async (data) => {
+          const payload = {
+            rival: data.rival,
+            fecha: data.fecha,
+            resultado: data.resultado,
+            notas: data.notas
+          };
+          if (editing) {
+            await api("/teams/" + state.currentTeam.id + "/matches/" + match.id, { method: "PUT", body: payload });
+          } else {
+            await api("/teams/" + state.currentTeam.id + "/matches/", { method: "POST", body: payload });
+          }
+          await loadTeamView(state.currentTeam.id, false);
+        }
+      });
+    }
+
+    function openDayModal(day) {
+      const editing = Boolean(day);
+      openModal({
+        title: editing ? "Edit Day" : "Create Day",
+        submitText: editing ? "Update" : "Create",
+        fields: [
+          {
+            name: "dia",
+            label: "Day Name",
+            type: "select",
+            options: dayOrder.map((d) => ({ label: d, value: d })),
+            value: day ? day.dia : "Lunes"
+          },
+          { name: "fecha", label: "Date", type: "date", value: day && day.fecha ? day.fecha : "" }
+        ],
+        onSubmit: async (data) => {
+          const payload = {
+            dia: data.dia,
+            fecha: data.fecha || null
+          };
+          if (editing) {
+            await api("/weeks/" + state.currentWeek.id + "/days/" + day.id, { method: "PUT", body: payload });
+          } else {
+            await api("/weeks/" + state.currentWeek.id + "/days/", { method: "POST", body: payload });
+          }
+          await loadWeekView(state.currentTeam.id, state.currentWeek.id, false);
+        }
+      });
+    }
+
+    function openActivityModal(dayId, activity) {
+      const editing = Boolean(activity);
+      openModal({
+        title: editing ? "Edit Activity" : "Add Activity",
+        submitText: editing ? "Update" : "Create",
+        fields: [
+          { name: "horario", label: "Time", type: "time", value: activity ? (activity.horario || "") : "", optionalEmptyToNull: true, trim: true },
+          { name: "lugar", label: "Location", type: "text", value: activity ? (activity.lugar || "") : "", optionalEmptyToNull: true, trim: true },
+          { name: "descripcion", label: "Description", type: "textarea", value: activity ? (activity.descripcion || "") : "", optionalEmptyToNull: true, trim: true }
+        ],
+        onSubmit: async (data) => {
+          const payload = {
+            horario: data.horario,
+            lugar: data.lugar,
+            descripcion: data.descripcion
+          };
+          if (editing) {
+            await api("/days/" + dayId + "/activities/" + activity.id, { method: "PUT", body: payload });
+          } else {
+            await api("/days/" + dayId + "/activities/", { method: "POST", body: payload });
+          }
+          await loadWeekView(state.currentTeam.id, state.currentWeek.id, false);
+        }
+      });
+    }
+
+    function bindEvents() {
+      el.backBtn.onclick = goBack;
+      el.logoutBtn.onclick = handleLogout;
+
+      el.loginForm.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        clearErrors();
+        try {
+          await login(el.loginEmail.value.trim(), el.loginPassword.value);
+          state.history = ["dashboard"];
+          showView("dashboard", false);
+          await loadDashboard();
+        } catch (error) {
+          el.loginError.textContent = getErrorMessage(error);
+        }
+      });
+
+      el.openSignupBtn.onclick = openSignupModal;
+      el.profileBtn.onclick = openProfileModal;
+      el.togglePlayersBtn.onclick = () => setPlayersOpen(!state.playersOpen);
+
+      el.createTeamBtn.onclick = () => openTeamModal(null);
+      el.teamEditBtn.onclick = () => openTeamModal(state.currentTeam);
+
+      el.teamDeleteBtn.onclick = async () => {
+        if (!state.currentTeam) return;
+        if (!confirm("Delete team and all related data?")) return;
+        await api("/teams/" + state.currentTeam.id, { method: "DELETE" });
+        state.currentTeam = null;
+        state.currentWeek = null;
+        state.history = ["dashboard"];
+        showView("dashboard", false);
+        await loadDashboard();
+      };
+
+      el.createPlayerBtn.onclick = () => openPlayerModal(null);
+      el.createWeekBtn.onclick = () => openWeekModal(null);
+      el.createMatchBtn.onclick = () => openMatchModal(null);
+
+      el.weekEditBtn.onclick = () => openWeekModal(state.currentWeek);
+      el.copyWeekBtn.onclick = openCopyWeekModal;
+      el.createDayBtn.onclick = () => openDayModal(null);
+
+      el.weekDeleteBtn.onclick = async () => {
+        if (!confirm("Delete this week?")) return;
+        await api("/teams/" + state.currentTeam.id + "/weeks/" + state.currentWeek.id, { method: "DELETE" });
+        state.currentWeek = null;
+        showView("team", false);
+        await loadTeamView(state.currentTeam.id, false);
+      };
+
+      el.modalOverlay.addEventListener("click", (ev) => {
+        if (ev.target === el.modalOverlay) closeModal();
+      });
+
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") closeModal();
+      });
+    }
+
+    async function start() {
+      bindEvents();
+      if (!state.token) {
+        state.history = ["login"];
+        showView("login", false);
+        return;
+      }
+
+      try {
+        state.history = ["dashboard"];
+        showView("dashboard", false);
+        await loadDashboard();
+      } catch (error) {
+        handleLogout();
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
