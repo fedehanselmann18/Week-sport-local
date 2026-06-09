@@ -1,7 +1,4 @@
-from pathlib import Path
-import secrets
-
-from fastapi import APIRouter, status, Depends, File, UploadFile, HTTPException
+from fastapi import APIRouter, status, Depends, HTTPException
 from app.db.db import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -9,11 +6,6 @@ from app.db import models
 from app.schemas.team import CreateTeam, TeamResponse, UpdateTeam
 from app.oAuth2 import get_current_user
 import uuid
-
-
-STATIC_PHOTOS_DIR = Path(__file__).resolve().parents[1] / "static" / "team_photos"
-ALLOWED_PHOTO_TYPES = {"image/jpeg", "image/png", "image/webp"}
-MAX_PHOTO_SIZE = 2 * 1024 * 1024
 
 
 router = APIRouter(
@@ -102,43 +94,5 @@ def update_team(team_id: uuid.UUID, team_data: UpdateTeam,
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Team name already exists")
 
-    db.refresh(team)
-    return team
-
-
-@router.post("/{team_id}/photo", response_model=TeamResponse,
-             status_code=status.HTTP_200_OK)
-# Upload or replace a team photo/logo.
-def upload_team_photo(team_id: uuid.UUID,
-                      photo: UploadFile = File(...),
-                      db: Session = Depends(get_db),
-                      current_user = Depends(get_current_user)):
-    team = db.query(models.Team).filter(
-        models.Team.id == team_id,
-        models.Team.owner_id == current_user.id,
-    ).first()
-    if team is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
-
-    if photo.content_type not in ALLOWED_PHOTO_TYPES:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only JPG, PNG and WEBP images are allowed")
-
-    file_bytes = photo.file.read()
-    if len(file_bytes) > MAX_PHOTO_SIZE:
-        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Image size must be 2MB or less")
-
-    extension = {
-        "image/jpeg": ".jpg",
-        "image/png": ".png",
-        "image/webp": ".webp",
-    }[photo.content_type]
-
-    STATIC_PHOTOS_DIR.mkdir(parents=True, exist_ok=True)
-    filename = f"{team_id}_{secrets.token_hex(8)}{extension}"
-    relative_path = f"static/team_photos/{filename}"
-    (STATIC_PHOTOS_DIR / filename).write_bytes(file_bytes)
-
-    team.foto_url = relative_path
-    db.commit()
     db.refresh(team)
     return team
