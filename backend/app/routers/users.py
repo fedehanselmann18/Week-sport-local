@@ -3,7 +3,7 @@ from app.db.db import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.db import models
-from app.schemas.user import CreateUser, UpdateUsername, UserResponse
+from app.schemas.user import CreateUser, DeleteUserResponse, UpdateUsername, UserResponse, CreatedUserResponse
 from app.oAuth2 import get_current_user
 from app.verification import hash_password
 
@@ -12,6 +12,18 @@ router = APIRouter(
     prefix="/user",
     tags=['User']
 )
+
+# Test endpoints
+
+@router.get("/", response_model=list[UserResponse])
+def get_all_users(db: Session = Depends(get_db)):
+    # Retrieve and return a list of all users in the database.
+    # without asking for authentication, as this endpoint is public.
+    users = db.query(models.User).all()
+    return users
+
+
+# end of test endpoints
 
 @router.get("/me", response_model=UserResponse)
 # Return the profile data of the currently authenticated user.
@@ -23,9 +35,17 @@ def get_current_user_data(db: Session = Depends(get_db),
     return user
 
 
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CreatedUserResponse, status_code=status.HTTP_201_CREATED)
 # Create a new user account with a hashed password.
 def create_user(user: CreateUser, db: Session = Depends(get_db)):
+    email_exists = db.query(models.User).filter(models.User.email == user.email).first()
+    if email_exists:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+
+    username_exists = db.query(models.User).filter(models.User.username == user.username).first()
+    if username_exists:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already registered")
+
     new_user = models.User(
         email=user.email,
         password=hash_password(user.password),
@@ -36,9 +56,10 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email or username already registered")
     db.refresh(new_user)
-    return new_user
+    return {"message" : "User created successfully","user": new_user.id}
+
 
 @router.delete("/me")
 # Delete the currently authenticated user account.
